@@ -36,7 +36,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: offerhunt/oh-learning
+          images: ${{ env.DOCKERHUB_USER }}/oh-learning
           tags: |
             type=raw,value=${{ github.sha }}
             type=ref,event=branch
