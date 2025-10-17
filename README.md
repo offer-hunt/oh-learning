@@ -13,14 +13,14 @@ export AUTH_ISSUER=http://localhost:8999
 export AUTH_JWKS_URL=http://localhost:8999/.well-known/jwks.json
 export AUTH_AUDIENCE=oh-learning
 
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
-## Запуск тестов
+## Запуск тестов и линтеров
 
-- Все тесты с линтерами:
+- Полная проверка (Spotless, Checkstyle, тесты):
 ```bash
-./mvnw verify
+./gradlew clean check
 ```
 
 ## Docker образ

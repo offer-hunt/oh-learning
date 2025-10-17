@@ -21,16 +21,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: maven
+          cache: gradle
 
       - name: Spotless check
-        run: ./mvnw -B spotless:check
+        run: ./gradlew --no-daemon spotlessCheck
 
       - name: Build & test (includes Checkstyle)
-        run: ./mvnw -B verify
+        run: ./gradlew --no-daemon clean check
 
       - name: Package (skip tests)
-        run: ./mvnw -B -DskipTests package
+        run: ./gradlew --no-daemon -x test bootJar
 
       - name: Docker meta
         id: meta
@@ -77,5 +77,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
-          path: target/surefire-reports/**
+          name: junit-reports
+          path: |
+            build/test-results/test/**
+            build/reports/tests/test/**

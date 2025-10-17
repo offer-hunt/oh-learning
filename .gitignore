@@ -6,6 +6,9 @@ pom.xml.versionsBackup
 release.properties
 dependency-reduced-pom.xml
 
+# ---- Gradle ----
+.gradle/
+
 # ---- Spring Boot ----
 *.log
 *.h2.db
