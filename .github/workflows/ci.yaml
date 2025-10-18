@@ -38,9 +38,10 @@ jobs:
         with:
           images: ${{ env.DOCKERHUB_USER }}/oh-learning
           tags: |
-            type=raw,value=${{ github.sha }}
             type=ref,event=branch
             type=ref,event=tag
+            type=sha,format=short
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
