@@ -2,6 +2,7 @@ package ru.offer.hunt.learning.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +48,31 @@ class DbSmokeTest {
   @Autowired private JdbcTemplate jdbc;
 
   @Test
-  void schema() {
+  void schemaAndInsert() {
     Integer cnt =
         jdbc.queryForObject(
-            "select count(*) from information_schema.tables where table_schema = 'learning' and table_name='__migration_probe'",
+            "select count(*) from information_schema.tables where table_schema = 'learning' and table_name='learning_ratings'",
             Integer.class);
     assertThat(cnt).isNotNull().isGreaterThanOrEqualTo(1);
 
-    Long id =
+    UUID userId = UUID.randomUUID();
+    UUID courseId = UUID.randomUUID();
+
+    int ins =
+        jdbc.update(
+            "insert into learning.learning_ratings(user_id, course_id, value, comment) values (?,?,?,?)",
+            userId,
+            courseId,
+            5,
+            "ok");
+    assertThat(ins).isEqualTo(1);
+
+    Integer value =
         jdbc.queryForObject(
-            "insert into learning.__migration_probe default values returning id", Long.class);
-    assertThat(id).isNotNull().isPositive();
+            "select value from learning.learning_ratings where user_id = ? and course_id = ?",
+            Integer.class,
+            userId,
+            courseId);
+    assertThat(value).isNotNull().isEqualTo(5);
   }
 }

@@ -27,4 +27,4 @@ export AUTH_AUDIENCE=oh-learning
 
 После каждого успешного билда в ветке `main`, CI автоматически собирает и публикует Docker образ.
 
-- Репозиторий на Docker Hub: https://hub.docker.com/r/omnomdom/oh-learning
+- Репозиторий на Docker Hub: https://hub.docker.com/r/offerhunt/oh-learning

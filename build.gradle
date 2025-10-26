@@ -36,10 +36,21 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
 
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.postgresql:postgresql'
 
     implementation 'org.flywaydb:flyway-database-postgresql:11.10.0'
 
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+    testCompileOnly 'org.projectlombok:lombok:1.18.38'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.38'
+
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    testImplementation 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.wiremock:wiremock-jetty12:3.9.1'
     testImplementation 'org.testcontainers:junit-jupiter:1.20.4'
@@ -50,7 +61,7 @@ dependencies {
 
 spotless {
     java {
-        googleJavaFormat('1.17.0')
+        googleJavaFormat('1.23.0')
         removeUnusedImports()
         endWithNewline()
         target 'src/**/*.java'
