@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,22 @@ import ru.offer.hunt.learning.service.EnrollmentService;
 @RequestMapping("/api/learning/enrollments")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Enrollments", description = "Управление зачислениями на курсы")
+@SecurityRequirement(name = "bearerAuth")
 public class EnrollmentController {
 
   private final EnrollmentService service;
 
   @GetMapping("/{userId}/{courseId}")
+  @Operation(
+      summary = "Получить зачисление",
+      description = "Возвращает статус зачисления пользователя на курс")
   public EnrollmentDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
     return service.get(userId, courseId);
   }
 
   @GetMapping
+  @Operation(summary = "Список зачислений", description = "Фильтры: userId или courseId")
   public List<EnrollmentDto> list(
       @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
     if (userId != null) {
@@ -46,6 +55,9 @@ public class EnrollmentController {
 
   @PostMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(
+      summary = "Создать/зачислить",
+      description = "Создаёт запись зачисления для пользователя и курса")
   public EnrollmentDto create(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -54,6 +66,9 @@ public class EnrollmentController {
   }
 
   @PutMapping("/{userId}/{courseId}")
+  @Operation(
+      summary = "Обновить зачисление",
+      description = "Обновляет статус/источник и таймстемпы")
   public EnrollmentDto update(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -63,6 +78,7 @@ public class EnrollmentController {
 
   @DeleteMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить зачисление")
   public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
     service.delete(userId, courseId);
   }

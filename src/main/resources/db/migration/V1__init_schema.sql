@@ -1,4 +1,3 @@
-create schema if not exists learning;
 
 -- 1) learning_enrollments
 create table if not exists learning.learning_enrollments
@@ -56,9 +55,9 @@ create table if not exists learning.learning_course_progress
     course_id           uuid        not null,
     progress_percentage int         not null,
     status              varchar     not null,
-    computed_at         timestamptz not null,
+    computed_at         timestamptz not null default now(),
     last_activity_at    timestamptz null,
-    completed_at        timestamptz null default now(),
+    completed_at        timestamptz null,
     content_version     int         null,
     constraint learning_course_progress_pk primary key (user_id, course_id),
     constraint learning_course_progress_progress_chk check (progress_percentage between 0 and 100)

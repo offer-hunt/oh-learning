@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,20 @@ import ru.offer.hunt.learning.service.QuestionStateService;
 @RequestMapping("/api/learning/question-states")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Question States", description = "Состояния вопросов: решённость и последняя попытка")
+@SecurityRequirement(name = "bearerAuth")
 public class QuestionStateController {
 
   private final QuestionStateService service;
 
   @GetMapping("/{userId}/{questionId}")
+  @Operation(summary = "Получить состояние вопроса")
   public QuestionStateDto get(@PathVariable UUID userId, @PathVariable UUID questionId) {
     return service.get(userId, questionId);
   }
 
   @GetMapping
+  @Operation(summary = "Список состояний вопросов", description = "Фильтры: userId или questionId")
   public List<QuestionStateDto> list(
       @RequestParam(required = false) UUID userId,
       @RequestParam(required = false) UUID questionId) {
@@ -47,6 +54,7 @@ public class QuestionStateController {
 
   @PostMapping("/{userId}/{questionId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Создать состояние вопроса")
   public QuestionStateDto create(
       @PathVariable UUID userId,
       @PathVariable UUID questionId,
@@ -55,6 +63,7 @@ public class QuestionStateController {
   }
 
   @PutMapping("/{userId}/{questionId}")
+  @Operation(summary = "Обновить состояние вопроса")
   public QuestionStateDto update(
       @PathVariable UUID userId,
       @PathVariable UUID questionId,
@@ -64,6 +73,7 @@ public class QuestionStateController {
 
   @DeleteMapping("/{userId}/{questionId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить состояние вопроса")
   public void delete(@PathVariable UUID userId, @PathVariable UUID questionId) {
     service.delete(userId, questionId);
   }

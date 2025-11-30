@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,20 @@ import ru.offer.hunt.learning.service.PageProgressService;
 @RequestMapping("/api/learning/page-progress")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Page Progress", description = "Прогресс по страницам курса")
+@SecurityRequirement(name = "bearerAuth")
 public class PageProgressController {
 
   private final PageProgressService service;
 
   @GetMapping("/{userId}/{pageId}")
+  @Operation(summary = "Получить прогресс по странице")
   public PageProgressDto get(@PathVariable UUID userId, @PathVariable UUID pageId) {
     return service.get(userId, pageId);
   }
 
   @GetMapping
+  @Operation(summary = "Список прогрессов по страницам", description = "Фильтры: userId или pageId")
   public List<PageProgressDto> list(
       @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID pageId) {
     if (userId != null) {
@@ -46,6 +53,7 @@ public class PageProgressController {
 
   @PostMapping("/{userId}/{pageId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Создать прогресс по странице")
   public PageProgressDto create(
       @PathVariable UUID userId,
       @PathVariable UUID pageId,
@@ -54,6 +62,7 @@ public class PageProgressController {
   }
 
   @PutMapping("/{userId}/{pageId}")
+  @Operation(summary = "Обновить прогресс по странице")
   public PageProgressDto update(
       @PathVariable UUID userId,
       @PathVariable UUID pageId,
@@ -63,6 +72,7 @@ public class PageProgressController {
 
   @DeleteMapping("/{userId}/{pageId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить прогресс по странице")
   public void delete(@PathVariable UUID userId, @PathVariable UUID pageId) {
     service.delete(userId, pageId);
   }

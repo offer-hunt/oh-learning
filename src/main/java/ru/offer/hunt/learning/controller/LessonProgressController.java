@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,20 @@ import ru.offer.hunt.learning.service.LessonProgressService;
 @RequestMapping("/api/learning/lesson-progress")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Lesson Progress", description = "Агрегированный прогресс по урокам")
+@SecurityRequirement(name = "bearerAuth")
 public class LessonProgressController {
 
   private final LessonProgressService service;
 
   @GetMapping("/{userId}/{lessonId}")
+  @Operation(summary = "Получить прогресс урока")
   public LessonProgressDto get(@PathVariable UUID userId, @PathVariable UUID lessonId) {
     return service.get(userId, lessonId);
   }
 
   @GetMapping
+  @Operation(summary = "Список прогрессов уроков", description = "Фильтры: userId или lessonId")
   public List<LessonProgressDto> list(
       @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID lessonId) {
     if (userId != null) {
@@ -46,6 +53,7 @@ public class LessonProgressController {
 
   @PostMapping("/{userId}/{lessonId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Создать прогресс урока")
   public LessonProgressDto create(
       @PathVariable UUID userId,
       @PathVariable UUID lessonId,
@@ -54,6 +62,7 @@ public class LessonProgressController {
   }
 
   @PutMapping("/{userId}/{lessonId}")
+  @Operation(summary = "Обновить прогресс урока")
   public LessonProgressDto update(
       @PathVariable UUID userId,
       @PathVariable UUID lessonId,
@@ -63,6 +72,7 @@ public class LessonProgressController {
 
   @DeleteMapping("/{userId}/{lessonId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить прогресс урока")
   public void delete(@PathVariable UUID userId, @PathVariable UUID lessonId) {
     service.delete(userId, lessonId);
   }

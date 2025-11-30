@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,20 @@ import ru.offer.hunt.learning.service.LearningRatingService;
 @RequestMapping("/api/learning/ratings")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Ratings", description = "Оценки курса пользователями")
+@SecurityRequirement(name = "bearerAuth")
 public class LearningRatingController {
 
   private final LearningRatingService service;
 
   @GetMapping("/{userId}/{courseId}")
+  @Operation(summary = "Получить оценку курса пользователем")
   public LearningRatingDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
     return service.get(userId, courseId);
   }
 
   @GetMapping
+  @Operation(summary = "Список оценок", description = "Фильтры: userId или courseId")
   public List<LearningRatingDto> list(
       @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
     if (userId != null) {
@@ -46,6 +53,7 @@ public class LearningRatingController {
 
   @PostMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Создать/поставить оценку")
   public LearningRatingDto create(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -54,6 +62,7 @@ public class LearningRatingController {
   }
 
   @PutMapping("/{userId}/{courseId}")
+  @Operation(summary = "Обновить оценку")
   public LearningRatingDto update(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -63,6 +72,7 @@ public class LearningRatingController {
 
   @DeleteMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить оценку")
   public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
     service.delete(userId, courseId);
   }

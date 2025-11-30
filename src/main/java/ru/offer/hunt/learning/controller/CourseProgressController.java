@@ -1,5 +1,8 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,16 +26,20 @@ import ru.offer.hunt.learning.service.CourseProgressService;
 @RequestMapping("/api/learning/course-progress")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Course Progress", description = "Агрегированный прогресс по курсу")
+@SecurityRequirement(name = "bearerAuth")
 public class CourseProgressController {
 
   private final CourseProgressService service;
 
   @GetMapping("/{userId}/{courseId}")
+  @Operation(summary = "Получить прогресс курса", description = "Прогресс пользователя по курсу")
   public CourseProgressDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
     return service.get(userId, courseId);
   }
 
   @GetMapping
+  @Operation(summary = "Список прогрессов курса", description = "Фильтры: userId или courseId")
   public List<CourseProgressDto> list(
       @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
     if (userId != null) {
@@ -46,6 +53,7 @@ public class CourseProgressController {
 
   @PostMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
+  @Operation(summary = "Создать прогресс курса")
   public CourseProgressDto create(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -54,6 +62,7 @@ public class CourseProgressController {
   }
 
   @PutMapping("/{userId}/{courseId}")
+  @Operation(summary = "Обновить прогресс курса")
   public CourseProgressDto update(
       @PathVariable UUID userId,
       @PathVariable UUID courseId,
@@ -63,6 +72,7 @@ public class CourseProgressController {
 
   @DeleteMapping("/{userId}/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(summary = "Удалить прогресс курса")
   public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
     service.delete(userId, courseId);
   }
