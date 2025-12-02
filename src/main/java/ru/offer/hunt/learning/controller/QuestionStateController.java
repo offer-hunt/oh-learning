@@ -7,12 +7,10 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.offer.hunt.learning.model.dto.QuestionStateDto;
 import ru.offer.hunt.learning.model.dto.QuestionStateUpsertRequest;
-import ru.offer.hunt.learning.service.AiAssistanceService;
 import ru.offer.hunt.learning.service.QuestionStateService;
 
 @RestController

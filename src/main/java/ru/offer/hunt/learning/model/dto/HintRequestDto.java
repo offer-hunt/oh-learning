@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "Запрос на подсказку по задаче")
 public class HintRequestDto {
-    @Schema(description = "Текущий код решения студента", example = "public class Main { public static void main(String[] args) { ... } }")
-    private String currentCode;
+  @Schema(
+      description = "Текущий код решения студента",
+      example = "public class Main { public static void main(String[] args) { ... } }")
+  private String currentCode;
 }

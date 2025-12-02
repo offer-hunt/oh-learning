@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class AiExternalExplainRequest {
-    private String text;
-    private String query;
+  private String text;
+  private String query;
 }

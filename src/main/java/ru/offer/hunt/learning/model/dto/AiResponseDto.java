@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class AiResponseDto {
-    private String content;
-    private String errorMessage;
-    private boolean success;
+  private String content;
+  private String errorMessage;
+  private boolean success;
 }
