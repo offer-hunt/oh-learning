@@ -1,26 +1,25 @@
 package ru.offer.hunt.learning.model.entity;
 
-import jakarta.persistence.*;
 import java.time.OffsetDateTime;
-import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import ru.offer.hunt.learning.model.id.AiTaskStatsId; // Создадим ниже
+import ru.offer.hunt.learning.model.id.AiTaskStatsId;
 
 @Entity
 @Table(name = "learning_ai_task_stats", schema = "learning")
 @Data
 @NoArgsConstructor
-@IdClass(AiTaskStatsId.class) // Композитный ключ
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AiTaskStats {
 
-  @Id
-  @Column(name = "user_id")
-  private UUID userId;
-
-  @Id
-  @Column(name = "task_id")
-  private UUID taskId;
+  @EmbeddedId
+  private AiTaskStatsId id;
 
   @Column(name = "hints_used")
   private Integer hintsUsed;

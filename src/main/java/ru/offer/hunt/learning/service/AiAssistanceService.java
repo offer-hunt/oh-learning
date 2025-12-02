@@ -8,7 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import ru.offer.hunt.learning.client.AiIntegrationClient;
-import ru.offer.hunt.learning.model.dto.*;
+import ru.offer.hunt.learning.model.dto.AiExternalExplainRequest;
+import ru.offer.hunt.learning.model.dto.AiExternalHintRequest;
+import ru.offer.hunt.learning.model.dto.AiResponseDto;
+import ru.offer.hunt.learning.model.dto.ExplainRequestDto;
+import ru.offer.hunt.learning.model.dto.HintRequestDto;
 import ru.offer.hunt.learning.model.entity.AiTaskStats;
 import ru.offer.hunt.learning.model.id.AiTaskStatsId;
 import ru.offer.hunt.learning.model.repository.AiTaskStatsRepository;
@@ -73,8 +77,7 @@ public class AiAssistanceService {
             .orElseGet(
                 () -> {
                   AiTaskStats newStats = new AiTaskStats();
-                  newStats.setUserId(userId);
-                  newStats.setTaskId(taskId);
+                  newStats.setId(new AiTaskStatsId(userId, taskId));
                   newStats.setHintsUsed(0);
                   newStats.setLastRequestAt(OffsetDateTime.now());
                   return aiStatsRepo.save(newStats);

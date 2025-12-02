@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import ru.offer.hunt.learning.model.dto.*;
+import ru.offer.hunt.learning.model.dto.AiExternalExplainRequest;
+import ru.offer.hunt.learning.model.dto.AiExternalHintRequest;
+import ru.offer.hunt.learning.model.dto.AiResponseDto;
 
 @Component
 public class AiIntegrationClient {
