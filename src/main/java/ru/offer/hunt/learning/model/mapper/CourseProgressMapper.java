@@ -17,11 +17,14 @@ import ru.offer.hunt.learning.model.id.CourseProgressId;
 public interface CourseProgressMapper {
 
   @Mapping(
-      target = "userId",
-      expression = "java(src.getId()!=null ? src.getId().getUserId() : null)")
-  @Mapping(
       target = "courseId",
       expression = "java(src.getId()!=null ? src.getId().getCourseId() : null)")
+  @Mapping(target = "progressStatus", source = "status")
+  @Mapping(target = "enrollmentStatus", ignore = true)
+  @Mapping(target = "source", ignore = true)
+  @Mapping(target = "enrolledAt", ignore = true)
+  @Mapping(target = "revokedAt", ignore = true)
+  @Mapping(target = "computedStatus", ignore = true)
   CourseProgressDto toDto(CourseProgress src);
 
   @Mapping(target = "id", expression = "java(new CourseProgressId(userId, courseId))")
