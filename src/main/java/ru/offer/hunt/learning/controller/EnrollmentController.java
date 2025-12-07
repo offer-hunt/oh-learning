@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.offer.hunt.learning.model.dto.EnrollmentDto;
 import ru.offer.hunt.learning.model.dto.EnrollmentUpsertRequest;
+import ru.offer.hunt.learning.security.SecurityUtils;
 import ru.offer.hunt.learning.service.EnrollmentService;
 
 @RestController
@@ -30,56 +32,54 @@ import ru.offer.hunt.learning.service.EnrollmentService;
 @SecurityRequirement(name = "bearerAuth")
 public class EnrollmentController {
 
-  private final EnrollmentService service;
+  private final EnrollmentService enrollmentService;
 
-  @GetMapping("/{userId}/{courseId}")
-  @Operation(
-      summary = "Получить зачисление",
-      description = "Возвращает статус зачисления пользователя на курс")
-  public EnrollmentDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
-    return service.get(userId, courseId);
+  @GetMapping("/{courseId}")
+  @Operation(summary = "Получить зачисление текущего пользователя на курс")
+  public EnrollmentDto get(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return enrollmentService.get(userId, courseId);
   }
 
   @GetMapping
-  @Operation(summary = "Список зачислений", description = "Фильтры: userId или courseId")
+  @Operation(
+      summary = "Список зачислений",
+      description = "По умолчанию — для текущего пользователя. Если указан courseId — по курсу.")
   public List<EnrollmentDto> list(
-      @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
-    if (userId != null) {
-      return service.listByUser(userId);
-    }
+      @RequestParam(required = false) UUID courseId, Authentication authentication) {
     if (courseId != null) {
-      return service.listByCourse(courseId);
+      return enrollmentService.listByCourse(courseId);
     }
-    return List.of();
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return enrollmentService.listByUser(userId);
   }
 
-  @PostMapping("/{userId}/{courseId}")
+  @PostMapping("/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(
-      summary = "Создать/зачислить",
-      description = "Создаёт запись зачисления для пользователя и курса")
+  @Operation(summary = "Зачислиться на курс (текущий пользователь)")
   public EnrollmentDto create(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody EnrollmentUpsertRequest req) {
-    return service.create(userId, courseId, req);
+      @RequestBody EnrollmentUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return enrollmentService.create(userId, courseId, req);
   }
 
-  @PutMapping("/{userId}/{courseId}")
-  @Operation(
-      summary = "Обновить зачисление",
-      description = "Обновляет статус/источник и таймстемпы")
+  @PutMapping("/{courseId}")
+  @Operation(summary = "Обновить зачисление (текущий пользователь)")
   public EnrollmentDto update(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody EnrollmentUpsertRequest req) {
-    return service.update(userId, courseId, req);
+      @RequestBody EnrollmentUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return enrollmentService.update(userId, courseId, req);
   }
 
-  @DeleteMapping("/{userId}/{courseId}")
+  @DeleteMapping("/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить зачисление")
-  public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
-    service.delete(userId, courseId);
+  @Operation(summary = "Отписаться от курса (текущий пользователь)")
+  public void unsubscribe(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
+    enrollmentService.revoke(userId, courseId);
   }
 }
