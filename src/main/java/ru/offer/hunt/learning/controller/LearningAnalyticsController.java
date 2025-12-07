@@ -1,5 +1,6 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -27,11 +28,23 @@ public class LearningAnalyticsController {
   private final LearningAnalyticsService service;
 
   @GetMapping("/courses/{courseId}")
+  @Operation(
+      summary = "Аналитика по одному курсу",
+      description =
+          "Возвращает агрегированную статистику по курсу: общее число студентов, "
+              + "число активных за неделю, число завершивших, процент завершения, "
+              + "средний процент прогресса. Используется в аналитике кабинета / авторском интерфейсе.")
   public CourseAnalyticsDto course(@PathVariable UUID courseId) {
     return service.analyticsForCourse(courseId);
   }
 
   @PostMapping("/courses")
+  @Operation(
+      summary = "Аналитика по нескольким курсам",
+      description =
+          "Возвращает список аналитических метрик по нескольким курсам. "
+              + "Список courseIds передаётся в теле запроса (CoursesAnalyticsRequest). "
+              + "Удобно для построения сводных дашбордов.")
   public List<CourseAnalyticsDto> courses(@RequestBody CoursesAnalyticsRequest req) {
     return service.analyticsForCourses(req != null ? req.getCourseIds() : List.of());
   }

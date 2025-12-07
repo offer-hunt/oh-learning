@@ -13,7 +13,7 @@ docker compose up -d postgres
 
 ```bash
 ./gradlew clean build
-java -jar build/libs/oh-course-0.0.1.jar --spring.profiles.active=local
+java -jar build/libs/oh-learning-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 ```
 
 Перейдите по ссылке:

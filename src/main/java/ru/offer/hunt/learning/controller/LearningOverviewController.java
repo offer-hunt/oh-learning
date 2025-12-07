@@ -1,5 +1,6 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,6 +36,13 @@ public class LearningOverviewController {
   private final CourseDetailsService courseDetailsService;
 
   @GetMapping("/courses")
+  @Operation(
+      summary = "Список моих курсов",
+      description =
+          "Возвращает список курсов, на которые зачислен текущий пользователь, "
+              + "с агрегированным прогрессом по каждому курсу. "
+              + "Если указан статус зачисления, фильтрует только по нему (например, IN_PROGRESS, COMPLETED). "
+              + "По умолчанию исключает зачисления со статусом REVOKED.")
   public List<CourseProgressDto> myCourses(
       @RequestParam(required = false) EnrollmentStatus status, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
@@ -42,6 +50,13 @@ public class LearningOverviewController {
   }
 
   @PostMapping("/courses/{courseId}/details")
+  @Operation(
+      summary = "Детальная информация о прогрессе по курсу",
+      description =
+          "Возвращает детальный прогресс текущего пользователя по указанному курсу: "
+              + "общий процент, вычисленный статус (NOT_STARTED / IN_PROGRESS / COMPLETED), "
+              + "статистику по урокам/страницам/вопросам и прогресс по главам. "
+              + "Фронт передаёт структуру курса (список уроков, страниц, вопросов и глав) в CourseDetailsRequest.")
   public CourseProgressDetailsDto courseDetails(
       @PathVariable UUID courseId,
       @RequestBody(required = false) @Valid CourseDetailsRequest req,

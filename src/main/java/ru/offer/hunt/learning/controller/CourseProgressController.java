@@ -35,7 +35,11 @@ public class CourseProgressController {
   private final CourseProgressService service;
 
   @GetMapping("/{courseId}")
-  @Operation(summary = "Получить прогресс курса (текущий пользователь)")
+  @Operation(
+      summary = "Получить прогресс курса",
+      description =
+          "Возвращает агрегированный прогресс текущего пользователя по курсу: "
+              + "процент, статус (строкой) и временные метки вычисления/завершения.")
   public CourseProgressDto get(@PathVariable UUID courseId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, courseId);
@@ -43,8 +47,10 @@ public class CourseProgressController {
 
   @GetMapping
   @Operation(
-      summary = "Список прогрессов",
-      description = "По умолчанию — для текущего пользователя. Если указан courseId — по курсу.")
+      summary = "Список прогрессов по курсам",
+      description =
+          "Если указан courseId — возвращает прогресс всех пользователей по курсу. "
+              + "Если courseId не указан — возвращает прогресс текущего пользователя по всем его курсам.")
   public List<CourseProgressDto> list(
       @RequestParam(required = false) UUID courseId, Authentication authentication) {
     if (courseId != null) {
@@ -56,7 +62,11 @@ public class CourseProgressController {
 
   @PostMapping("/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать прогресс курса (текущий пользователь)")
+  @Operation(
+      summary = "Создать прогресс курса",
+      description =
+          "Создаёт запись агрегированного прогресса по курсу для текущего пользователя. "
+              + "Обычно вызывается фоновым воркером после пересчёта прогресса.")
   public CourseProgressDto create(
       @PathVariable UUID courseId,
       @RequestBody CourseProgressUpsertRequest req,
@@ -66,7 +76,11 @@ public class CourseProgressController {
   }
 
   @PutMapping("/{courseId}")
-  @Operation(summary = "Обновить прогресс курса (текущий пользователь)")
+  @Operation(
+      summary = "Обновить прогресс курса",
+      description =
+          "Обновляет агрегированный прогресс по курсу для текущего пользователя. "
+              + "Используется фоновыми задачами/воркерами при пересчёте прогресса.")
   public CourseProgressDto update(
       @PathVariable UUID courseId,
       @RequestBody CourseProgressUpsertRequest req,
@@ -77,7 +91,9 @@ public class CourseProgressController {
 
   @DeleteMapping("/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить прогресс курса (текущий пользователь)")
+  @Operation(
+      summary = "Удалить прогресс курса",
+      description = "Удаляет запись агрегированного прогресса по курсу для текущего пользователя.")
   public void delete(@PathVariable UUID courseId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, courseId);

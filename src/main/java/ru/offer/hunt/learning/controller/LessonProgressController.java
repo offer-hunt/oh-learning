@@ -35,7 +35,11 @@ public class LessonProgressController {
   private final LessonProgressService service;
 
   @GetMapping("/{lessonId}")
-  @Operation(summary = "Получить прогресс урока (текущий пользователь)")
+  @Operation(
+      summary = "Получить прогресс урока",
+      description =
+          "Возвращает прогресс текущего пользователя по указанному уроку: "
+              + "процент, статус и время вычисления.")
   public LessonProgressDto get(@PathVariable UUID lessonId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, lessonId);
@@ -44,7 +48,9 @@ public class LessonProgressController {
   @GetMapping
   @Operation(
       summary = "Список прогрессов уроков",
-      description = "По умолчанию — для текущего пользователя. Если указан lessonId — по уроку.")
+      description =
+          "Если указан lessonId — возвращает прогресс всех пользователей по этому уроку. "
+              + "Если lessonId не указан — возвращает прогресс текущего пользователя по всем его урокам.")
   public List<LessonProgressDto> list(
       @RequestParam(required = false) UUID lessonId, Authentication authentication) {
     if (lessonId != null) {
@@ -56,7 +62,11 @@ public class LessonProgressController {
 
   @PostMapping("/{lessonId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать прогресс урока (текущий пользователь)")
+  @Operation(
+      summary = "Создать прогресс урока",
+      description =
+          "Создаёт запись прогресса по уроку для текущего пользователя. "
+              + "Обычно вызывается при первом появлении прогресса по уроку.")
   public LessonProgressDto create(
       @PathVariable UUID lessonId,
       @RequestBody LessonProgressUpsertRequest req,
@@ -66,7 +76,11 @@ public class LessonProgressController {
   }
 
   @PutMapping("/{lessonId}")
-  @Operation(summary = "Обновить прогресс урока (текущий пользователь)")
+  @Operation(
+      summary = "Обновить прогресс урока",
+      description =
+          "Обновляет прогресс по уроку для текущего пользователя. "
+              + "Используется при изменении процента выполнения урока.")
   public LessonProgressDto update(
       @PathVariable UUID lessonId,
       @RequestBody LessonProgressUpsertRequest req,
@@ -77,7 +91,9 @@ public class LessonProgressController {
 
   @DeleteMapping("/{lessonId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить прогресс урока (текущий пользователь)")
+  @Operation(
+      summary = "Удалить прогресс урока",
+      description = "Удаляет запись прогресса по уроку для текущего пользователя.")
   public void delete(@PathVariable UUID lessonId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, lessonId);

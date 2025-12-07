@@ -1,5 +1,6 @@
 package ru.offer.hunt.learning.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
@@ -22,6 +23,11 @@ public class LearningExportController {
   private final LearningExportService service;
 
   @GetMapping
+  @Operation(
+      summary = "Экспорт всех данных по обучению текущего пользователя",
+      description =
+          "Возвращает сводный объект с данными текущего пользователя в learning-подсистеме: "
+              + "зачисления на курсы, прогресс по курсам/урокам/страницам, состояния вопросов и оценки.")
   public LearningExportDto export(Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     return service.export(userId);

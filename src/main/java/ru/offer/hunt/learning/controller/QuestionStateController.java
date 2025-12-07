@@ -35,7 +35,11 @@ public class QuestionStateController {
   private final QuestionStateService service;
 
   @GetMapping("/{questionId}")
-  @Operation(summary = "Получить состояние вопроса (текущий пользователь)")
+  @Operation(
+      summary = "Получить состояние вопроса",
+      description =
+          "Возвращает состояние конкретного вопроса для текущего пользователя: "
+              + "решён ли вопрос, время решения, последняя отправка и её статус.")
   public QuestionStateDto get(@PathVariable UUID questionId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, questionId);
@@ -45,7 +49,9 @@ public class QuestionStateController {
   @Operation(
       summary = "Список состояний вопросов",
       description =
-          "По умолчанию — для текущего пользователя. Если указан questionId — по вопросу.")
+          "Если указан questionId — возвращает состояния всех пользователей по этому вопросу "
+              + "(для аналитики/проверки). "
+              + "Если questionId не указан — возвращает состояния всех вопросов текущего пользователя.")
   public List<QuestionStateDto> list(
       @RequestParam(required = false) UUID questionId, Authentication authentication) {
     if (questionId != null) {
@@ -57,7 +63,11 @@ public class QuestionStateController {
 
   @PostMapping("/{questionId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать состояние вопроса (текущий пользователь)")
+  @Operation(
+      summary = "Создать состояние вопроса",
+      description =
+          "Создаёт состояние вопроса для текущего пользователя. "
+              + "Используется при первой попытке решения вопроса.")
   public QuestionStateDto create(
       @PathVariable UUID questionId,
       @RequestBody QuestionStateUpsertRequest req,
@@ -67,7 +77,11 @@ public class QuestionStateController {
   }
 
   @PutMapping("/{questionId}")
-  @Operation(summary = "Обновить состояние вопроса (текущий пользователь)")
+  @Operation(
+      summary = "Обновить состояние вопроса",
+      description =
+          "Обновляет состояние вопроса для текущего пользователя: "
+              + "флаг решённости, время решения, последнюю попытку и статус проверки.")
   public QuestionStateDto update(
       @PathVariable UUID questionId,
       @RequestBody QuestionStateUpsertRequest req,
@@ -78,7 +92,11 @@ public class QuestionStateController {
 
   @DeleteMapping("/{questionId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить состояние вопроса (текущий пользователь)")
+  @Operation(
+      summary = "Удалить состояние вопроса",
+      description =
+          "Удаляет состояние вопроса для текущего пользователя. "
+              + "Обычно используется для сброса прогресса по вопросу.")
   public void delete(@PathVariable UUID questionId, Authentication authentication) {
     UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, questionId);
