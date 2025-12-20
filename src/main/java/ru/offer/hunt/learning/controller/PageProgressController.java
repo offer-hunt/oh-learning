@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.offer.hunt.learning.model.dto.PageProgressDto;
 import ru.offer.hunt.learning.model.dto.PageProgressUpsertRequest;
+import ru.offer.hunt.learning.security.SecurityUtils;
 import ru.offer.hunt.learning.service.PageProgressService;
 
 @RestController
@@ -32,48 +34,68 @@ public class PageProgressController {
 
   private final PageProgressService service;
 
-  @GetMapping("/{userId}/{pageId}")
-  @Operation(summary = "Получить прогресс по странице")
-  public PageProgressDto get(@PathVariable UUID userId, @PathVariable UUID pageId) {
+  @GetMapping("/{pageId}")
+  @Operation(
+      summary = "Получить прогресс по странице",
+      description =
+          "Возвращает прогресс текущего пользователя по указанной странице: "
+              + "статус (NOT_STARTED/IN_PROGRESS/COMPLETED), время просмотра и количество попыток.")
+  public PageProgressDto get(@PathVariable UUID pageId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, pageId);
   }
 
   @GetMapping
-  @Operation(summary = "Список прогрессов по страницам", description = "Фильтры: userId или pageId")
+  @Operation(
+      summary = "Список прогрессов по страницам",
+      description =
+          "Если указан pageId — возвращает прогресс всех пользователей по этой странице. "
+              + "Если pageId не указан — возвращает прогресс текущего пользователя по всем его страницам.")
   public List<PageProgressDto> list(
-      @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID pageId) {
-    if (userId != null) {
-      return service.listByUser(userId);
-    }
+      @RequestParam(required = false) UUID pageId, Authentication authentication) {
     if (pageId != null) {
       return service.listByPage(pageId);
     }
-    return List.of();
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return service.listByUser(userId);
   }
 
-  @PostMapping("/{userId}/{pageId}")
+  @PostMapping("/{pageId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать прогресс по странице")
+  @Operation(
+      summary = "Создать прогресс по странице",
+      description =
+          "Создаёт запись прогресса по странице для текущего пользователя. "
+              + "Используется, когда пользователь впервые взаимодействует со страницей.")
   public PageProgressDto create(
-      @PathVariable UUID userId,
       @PathVariable UUID pageId,
-      @RequestBody PageProgressUpsertRequest req) {
+      @RequestBody PageProgressUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.create(userId, pageId, req);
   }
 
-  @PutMapping("/{userId}/{pageId}")
-  @Operation(summary = "Обновить прогресс по странице")
+  @PutMapping("/{pageId}")
+  @Operation(
+      summary = "Обновить прогресс по странице",
+      description =
+          "Обновляет прогресс по странице для текущего пользователя: "
+              + "статус, время, количество попыток, версию контента.")
   public PageProgressDto update(
-      @PathVariable UUID userId,
       @PathVariable UUID pageId,
-      @RequestBody PageProgressUpsertRequest req) {
+      @RequestBody PageProgressUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.update(userId, pageId, req);
   }
 
-  @DeleteMapping("/{userId}/{pageId}")
+  @DeleteMapping("/{pageId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить прогресс по странице")
-  public void delete(@PathVariable UUID userId, @PathVariable UUID pageId) {
+  @Operation(
+      summary = "Удалить прогресс по странице",
+      description = "Удаляет запись прогресса по странице для текущего пользователя.")
+  public void delete(@PathVariable UUID pageId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, pageId);
   }
 }

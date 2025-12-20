@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.offer.hunt.learning.model.dto.QuestionStateDto;
 import ru.offer.hunt.learning.model.dto.QuestionStateUpsertRequest;
+import ru.offer.hunt.learning.security.SecurityUtils;
 import ru.offer.hunt.learning.service.QuestionStateService;
 
 @RestController
@@ -32,49 +34,71 @@ public class QuestionStateController {
 
   private final QuestionStateService service;
 
-  @GetMapping("/{userId}/{questionId}")
-  @Operation(summary = "Получить состояние вопроса")
-  public QuestionStateDto get(@PathVariable UUID userId, @PathVariable UUID questionId) {
+  @GetMapping("/{questionId}")
+  @Operation(
+      summary = "Получить состояние вопроса",
+      description =
+          "Возвращает состояние конкретного вопроса для текущего пользователя: "
+              + "решён ли вопрос, время решения, последняя отправка и её статус.")
+  public QuestionStateDto get(@PathVariable UUID questionId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, questionId);
   }
 
   @GetMapping
-  @Operation(summary = "Список состояний вопросов", description = "Фильтры: userId или questionId")
+  @Operation(
+      summary = "Список состояний вопросов",
+      description =
+          "Если указан questionId — возвращает состояния всех пользователей по этому вопросу "
+              + "(для аналитики/проверки). "
+              + "Если questionId не указан — возвращает состояния всех вопросов текущего пользователя.")
   public List<QuestionStateDto> list(
-      @RequestParam(required = false) UUID userId,
-      @RequestParam(required = false) UUID questionId) {
-    if (userId != null) {
-      return service.listByUser(userId);
-    }
+      @RequestParam(required = false) UUID questionId, Authentication authentication) {
     if (questionId != null) {
       return service.listByQuestion(questionId);
     }
-    return List.of();
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return service.listByUser(userId);
   }
 
-  @PostMapping("/{userId}/{questionId}")
+  @PostMapping("/{questionId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать состояние вопроса")
+  @Operation(
+      summary = "Создать состояние вопроса",
+      description =
+          "Создаёт состояние вопроса для текущего пользователя. "
+              + "Используется при первой попытке решения вопроса.")
   public QuestionStateDto create(
-      @PathVariable UUID userId,
       @PathVariable UUID questionId,
-      @RequestBody QuestionStateUpsertRequest req) {
+      @RequestBody QuestionStateUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.create(userId, questionId, req);
   }
 
-  @PutMapping("/{userId}/{questionId}")
-  @Operation(summary = "Обновить состояние вопроса")
+  @PutMapping("/{questionId}")
+  @Operation(
+      summary = "Обновить состояние вопроса",
+      description =
+          "Обновляет состояние вопроса для текущего пользователя: "
+              + "флаг решённости, время решения, последнюю попытку и статус проверки.")
   public QuestionStateDto update(
-      @PathVariable UUID userId,
       @PathVariable UUID questionId,
-      @RequestBody QuestionStateUpsertRequest req) {
+      @RequestBody QuestionStateUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.update(userId, questionId, req);
   }
 
-  @DeleteMapping("/{userId}/{questionId}")
+  @DeleteMapping("/{questionId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить состояние вопроса")
-  public void delete(@PathVariable UUID userId, @PathVariable UUID questionId) {
+  @Operation(
+      summary = "Удалить состояние вопроса",
+      description =
+          "Удаляет состояние вопроса для текущего пользователя. "
+              + "Обычно используется для сброса прогресса по вопросу.")
+  public void delete(@PathVariable UUID questionId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, questionId);
   }
 }

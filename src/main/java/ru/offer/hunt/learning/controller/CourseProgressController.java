@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.offer.hunt.learning.model.dto.CourseProgressDto;
 import ru.offer.hunt.learning.model.dto.CourseProgressUpsertRequest;
+import ru.offer.hunt.learning.security.SecurityUtils;
 import ru.offer.hunt.learning.service.CourseProgressService;
 
 @RestController
@@ -32,48 +34,68 @@ public class CourseProgressController {
 
   private final CourseProgressService service;
 
-  @GetMapping("/{userId}/{courseId}")
-  @Operation(summary = "Получить прогресс курса", description = "Прогресс пользователя по курсу")
-  public CourseProgressDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
+  @GetMapping("/{courseId}")
+  @Operation(
+      summary = "Получить прогресс курса",
+      description =
+          "Возвращает агрегированный прогресс текущего пользователя по курсу: "
+              + "процент, статус (строкой) и временные метки вычисления/завершения.")
+  public CourseProgressDto get(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, courseId);
   }
 
   @GetMapping
-  @Operation(summary = "Список прогрессов курса", description = "Фильтры: userId или courseId")
+  @Operation(
+      summary = "Список прогрессов по курсам",
+      description =
+          "Если указан courseId — возвращает прогресс всех пользователей по курсу. "
+              + "Если courseId не указан — возвращает прогресс текущего пользователя по всем его курсам.")
   public List<CourseProgressDto> list(
-      @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
-    if (userId != null) {
-      return service.listByUser(userId);
-    }
+      @RequestParam(required = false) UUID courseId, Authentication authentication) {
     if (courseId != null) {
       return service.listByCourse(courseId);
     }
-    return List.of();
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return service.listByUser(userId);
   }
 
-  @PostMapping("/{userId}/{courseId}")
+  @PostMapping("/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать прогресс курса")
+  @Operation(
+      summary = "Создать прогресс курса",
+      description =
+          "Создаёт запись агрегированного прогресса по курсу для текущего пользователя. "
+              + "Обычно вызывается фоновым воркером после пересчёта прогресса.")
   public CourseProgressDto create(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody CourseProgressUpsertRequest req) {
+      @RequestBody CourseProgressUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.create(userId, courseId, req);
   }
 
-  @PutMapping("/{userId}/{courseId}")
-  @Operation(summary = "Обновить прогресс курса")
+  @PutMapping("/{courseId}")
+  @Operation(
+      summary = "Обновить прогресс курса",
+      description =
+          "Обновляет агрегированный прогресс по курсу для текущего пользователя. "
+              + "Используется фоновыми задачами/воркерами при пересчёте прогресса.")
   public CourseProgressDto update(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody CourseProgressUpsertRequest req) {
+      @RequestBody CourseProgressUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.update(userId, courseId, req);
   }
 
-  @DeleteMapping("/{userId}/{courseId}")
+  @DeleteMapping("/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить прогресс курса")
-  public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
+  @Operation(
+      summary = "Удалить прогресс курса",
+      description = "Удаляет запись агрегированного прогресса по курсу для текущего пользователя.")
+  public void delete(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, courseId);
   }
 }

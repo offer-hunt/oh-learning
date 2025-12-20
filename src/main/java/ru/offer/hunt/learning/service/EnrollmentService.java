@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.offer.hunt.learning.model.dto.EnrollmentDto;
 import ru.offer.hunt.learning.model.dto.EnrollmentUpsertRequest;
 import ru.offer.hunt.learning.model.entity.LearningEnrollment;
+import ru.offer.hunt.learning.model.enums.EnrollmentStatus;
 import ru.offer.hunt.learning.model.id.EnrollmentId;
 import ru.offer.hunt.learning.model.mapper.EnrollmentMapper;
 import ru.offer.hunt.learning.model.repository.LearningEnrollmentRepository;
@@ -18,6 +20,7 @@ import ru.offer.hunt.learning.model.repository.LearningEnrollmentRepository;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class EnrollmentService {
 
   private final LearningEnrollmentRepository repo;
@@ -78,5 +81,28 @@ public class EnrollmentService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment not found");
     }
     repo.deleteById(id);
+  }
+
+  public void revoke(UUID userId, UUID courseId) {
+    var id = new EnrollmentId(userId, courseId);
+    var entity =
+        repo.findById(id)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Enrollment not found"));
+
+    // делаем идемпотентно
+    if (entity.getStatus() == EnrollmentStatus.REVOKED) {
+      log.info("Enrollment already revoked, userId={}, courseId={}", userId, courseId);
+      return;
+    }
+
+    var now = OffsetDateTime.now();
+    entity.setStatus(EnrollmentStatus.REVOKED);
+    entity.setRevokedAt(now);
+    entity.setLastActivityAt(now);
+
+    repo.save(entity);
+
+    log.info("Enrollment revoked, userId={}, courseId={}", userId, courseId);
   }
 }

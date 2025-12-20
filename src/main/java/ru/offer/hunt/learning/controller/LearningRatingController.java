@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.offer.hunt.learning.model.dto.LearningRatingDto;
 import ru.offer.hunt.learning.model.dto.LearningRatingUpsertRequest;
+import ru.offer.hunt.learning.security.SecurityUtils;
 import ru.offer.hunt.learning.service.LearningRatingService;
 
 @RestController
@@ -32,48 +34,66 @@ public class LearningRatingController {
 
   private final LearningRatingService service;
 
-  @GetMapping("/{userId}/{courseId}")
-  @Operation(summary = "Получить оценку курса пользователем")
-  public LearningRatingDto get(@PathVariable UUID userId, @PathVariable UUID courseId) {
+  @GetMapping("/{courseId}")
+  @Operation(
+      summary = "Получить мою оценку курса",
+      description = "Возвращает оценку и комментарий текущего пользователя для указанного курса.")
+  public LearningRatingDto get(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.get(userId, courseId);
   }
 
   @GetMapping
-  @Operation(summary = "Список оценок", description = "Фильтры: userId или courseId")
+  @Operation(
+      summary = "Список оценок",
+      description =
+          "Если указан courseId — возвращает все оценки по курсу (для аналитики/кабинета). "
+              + "Если courseId не указан — возвращает все оценки текущего пользователя.")
   public List<LearningRatingDto> list(
-      @RequestParam(required = false) UUID userId, @RequestParam(required = false) UUID courseId) {
-    if (userId != null) {
-      return service.listByUser(userId);
-    }
+      @RequestParam(required = false) UUID courseId, Authentication authentication) {
     if (courseId != null) {
       return service.listByCourse(courseId);
     }
-    return List.of();
+    UUID userId = SecurityUtils.getUserId(authentication);
+    return service.listByUser(userId);
   }
 
-  @PostMapping("/{userId}/{courseId}")
+  @PostMapping("/{courseId}")
   @ResponseStatus(HttpStatus.CREATED)
-  @Operation(summary = "Создать/поставить оценку")
+  @Operation(
+      summary = "Создать/поставить оценку курса",
+      description =
+          "Создаёт оценку и комментарий к курсу от имени текущего пользователя. "
+              + "Если оценка уже существует, вернёт ошибку CONFLICT.")
   public LearningRatingDto create(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody LearningRatingUpsertRequest req) {
+      @RequestBody LearningRatingUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.create(userId, courseId, req);
   }
 
-  @PutMapping("/{userId}/{courseId}")
-  @Operation(summary = "Обновить оценку")
+  @PutMapping("/{courseId}")
+  @Operation(
+      summary = "Обновить мою оценку курса",
+      description =
+          "Обновляет значение оценки и/или комментарий текущего пользователя для курса. "
+              + "Можно использовать для редактирования уже оставленного отзыва.")
   public LearningRatingDto update(
-      @PathVariable UUID userId,
       @PathVariable UUID courseId,
-      @RequestBody LearningRatingUpsertRequest req) {
+      @RequestBody LearningRatingUpsertRequest req,
+      Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     return service.update(userId, courseId, req);
   }
 
-  @DeleteMapping("/{userId}/{courseId}")
+  @DeleteMapping("/{courseId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @Operation(summary = "Удалить оценку")
-  public void delete(@PathVariable UUID userId, @PathVariable UUID courseId) {
+  @Operation(
+      summary = "Удалить мою оценку курса",
+      description = "Удаляет оценку текущего пользователя для указанного курса.")
+  public void delete(@PathVariable UUID courseId, Authentication authentication) {
+    UUID userId = SecurityUtils.getUserId(authentication);
     service.delete(userId, courseId);
   }
 }
