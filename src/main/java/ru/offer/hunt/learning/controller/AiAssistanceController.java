@@ -45,9 +45,7 @@ public class AiAssistanceController {
           "Генерирует подсказку по коду задачи. Проверяет лимиты использования подсказок (макс 3).")
   @PostMapping("/tasks/{taskId}/hint")
   public ResponseEntity<AiResponseDto> getTaskHint(
-      @RequestHeader UUID userId,
-      @PathVariable UUID taskId,
-      @RequestBody HintRequestDto request) {
+      @RequestHeader UUID userId, @PathVariable UUID taskId, @RequestBody HintRequestDto request) {
     return ResponseEntity.ok(aiService.getTaskHint(userId, taskId, request));
   }
 }
