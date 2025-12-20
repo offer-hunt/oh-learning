@@ -35,7 +35,7 @@ public class AiAssistanceController {
           "Позволяет студенту получить AI-объяснение выделенного фрагмента текста методички.")
   @PostMapping("/explain")
   public ResponseEntity<AiResponseDto> explainMaterial(
-      @RequestHeader("X-User-Id") UUID userId, @RequestBody ExplainRequestDto request) {
+      @RequestHeader UUID userId, @RequestBody ExplainRequestDto request) {
     return ResponseEntity.ok(aiService.explainMaterial(userId, request));
   }
 
@@ -45,7 +45,7 @@ public class AiAssistanceController {
           "Генерирует подсказку по коду задачи. Проверяет лимиты использования подсказок (макс 3).")
   @PostMapping("/tasks/{taskId}/hint")
   public ResponseEntity<AiResponseDto> getTaskHint(
-      @RequestHeader("X-User-Id") UUID userId,
+      @RequestHeader UUID userId,
       @PathVariable UUID taskId,
       @RequestBody HintRequestDto request) {
     return ResponseEntity.ok(aiService.getTaskHint(userId, taskId, request));
