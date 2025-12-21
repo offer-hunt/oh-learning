@@ -22,12 +22,18 @@ public interface QuestionStateMapper {
   @Mapping(
       target = "questionId",
       expression = "java(src.getId()!=null ? src.getId().getQuestionId() : null)")
+  @Mapping(target = "lastScore", source = "lastScore")
+  @Mapping(target = "lastFeedback", source = "lastFeedback")
   QuestionStateDto toDto(QuestionState src);
 
   @Mapping(target = "id", expression = "java(new QuestionStateId(userId, questionId))")
+  @Mapping(target = "lastScore", ignore = true)
+  @Mapping(target = "lastFeedback", ignore = true)
   QuestionState toEntity(UUID userId, UUID questionId, QuestionStateUpsertRequest req);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "lastScore", ignore = true)
+  @Mapping(target = "lastFeedback", ignore = true)
   void update(@MappingTarget QuestionState target, QuestionStateUpsertRequest req);
 }

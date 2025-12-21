@@ -4,6 +4,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,5 +36,13 @@ public final class SecurityUtils {
 
     log.error("Unsupported authentication type: {}", authentication.getClass());
     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Некорректный тип аутентификации");
+  }
+
+  public static String getBearerTokenOrNull() {
+    var auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth instanceof JwtAuthenticationToken jwtAuth) {
+      return jwtAuth.getToken().getTokenValue();
+    }
+    return null;
   }
 }

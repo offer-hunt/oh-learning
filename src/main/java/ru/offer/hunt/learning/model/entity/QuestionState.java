@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -44,4 +45,10 @@ public class QuestionState {
 
   @Column(name = "last_updated_at", nullable = false)
   private OffsetDateTime lastUpdatedAt;
+
+  @Column(name = "last_score")
+  private BigDecimal lastScore;
+
+  @Column(name = "last_feedback")
+  private String lastFeedback;
 }
